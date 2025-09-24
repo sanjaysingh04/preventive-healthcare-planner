@@ -41,11 +41,6 @@ HealthPlanner is a responsive web application that acts as a preventive care ass
 - Schedule and track appointments via the calendar tab.
 - Export your care plan using the "Export PDF" button in the Care Plan section[1].
 
-***
-
-### Screenshots
-
-Add relevant screenshots of the application UI (Home, Profile, Care Plan, Calendar, Chat assistant) here for illustration.
 
 ***
 
