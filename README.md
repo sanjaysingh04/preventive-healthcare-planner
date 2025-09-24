@@ -1,3 +1,4 @@
+Live webiste preview link: https://sanjaysingh04.github.io/preventive-healthcare-planner/
 # HealthPlanner
 
 HealthPlanner is a responsive web application that acts as a preventive care assistant for users. It provides personalized health recommendations, allows users to track appointments, manage health profiles, and receive evidence-based lifestyle and care guidelines[1].
