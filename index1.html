@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPlanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+        .sidebar-open {
+            transform: translateX(0);
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Main Container -->
+    <div class="flex-1 flex w-full">
+
+        <!-- Sidebar (Mobile and Desktop) -->
+        <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 w-64 md:relative md:flex md:flex-col border-r border-slate-200/60 bg-white/90 backdrop-blur-sm shadow-sm">
+            <header class="border-b border-slate-200/60 p-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-white"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-900 text-lg">HealthPlanner</h2>
+                        <p class="text-xs text-slate-500 font-medium">Preventive Care Assistant</p>
+                    </div>
+                </div>
+            </header>
+            <div class="p-3">
+                <nav class="space-y-2">
+                    <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wider px-3 py-3 mb-2">Navigation</h3>
+                    <button class="nav-button w-full text-left p-4 rounded-lg transition-all duration-200 group flex items-center gap-4 bg-blue-50 text-blue-700 shadow-sm border border-blue-100" data-page="home">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm leading-tight">Health Assistant</div>
+                            <div class="text-xs text-slate-500 mt-1 leading-tight">Chat with your health advisor</div>
+                        </div>
+                    </button>
+                    <button class="nav-button w-full text-left p-4 rounded-lg transition-all duration-200 group flex items-center gap-4 text-slate-700 hover:bg-slate-50 hover:shadow-sm" data-page="profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm leading-tight">My Profile</div>
+                            <div class="text-xs text-slate-500 mt-1 leading-tight">Health information & history</div>
+                        </div>
+                    </button>
+                    <button class="nav-button w-full text-left p-4 rounded-lg transition-all duration-200 group flex items-center gap-4 text-slate-700 hover:bg-slate-50 hover:shadow-sm" data-page="careplan">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm leading-tight">Care Plan</div>
+                            <div class="text-xs text-slate-500 mt-1 leading-tight">Personalized recommendations</div>
+                        </div>
+                    </button>
+                    <button class="nav-button w-full text-left p-4 rounded-lg transition-all duration-200 group flex items-center gap-4 text-slate-700 hover:bg-slate-50 hover:shadow-sm" data-page="calendar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm leading-tight">Calendar</div>
+                            <div class="text-xs text-slate-500 mt-1 leading-tight">Appointments & reminders</div>
+                        </div>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-green-50/30">
+            <!-- Mobile Header -->
+            <header class="md:hidden bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-6 py-4">
+                <div class="flex items-center gap-4">
+                    <button id="mobile-menu-button" class="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-600"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        <h1 class="text-lg font-bold text-slate-900">HealthPlanner</h1>
+                    </div>
+                </div>
+            </header>
+
+            <div id="content" class="flex-1 overflow-auto">
+                <!-- Page content will be rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const appState = {
+            currentPage: 'home',
+            chatHistory: [{ role: 'assistant', text: "Hello! I'm your personal preventive care assistant. I'm here to help you with health tips, reminders, and preventive care. How can I assist you today?" }],
+            isChatLoading: false,
+            profile: { age: '', height: '', weight: '' },
+            appointments: []
+        };
+        
+        // Dummy AI Response Logic
+        function getAIResponse(userMessage) {
+            const lower = userMessage.toLowerCase();
+            
+            // Start Health Assessment logic
+            if (lower.includes("start health assessment")) {
+                const profile = JSON.parse(localStorage.getItem('healthProfile') || '{}');
+                const { age, height, weight } = profile;
+
+                if (!age || !height || !weight) {
+                    return "Please fill out your age, height, and weight in the 'My Profile' section to get a health assessment.";
+                }
+                
+                const bmi = weight / ((height / 100) * (height / 100));
+                let bmiStatus = "normal weight";
+                if (bmi < 18.5) bmiStatus = "underweight";
+                else if (bmi >= 25 && bmi < 30) bmiStatus = "overweight";
+                else if (bmi >= 30) bmiStatus = "obese";
+                
+                return `Based on your profile, your BMI is ${bmi.toFixed(2)}, which falls into the ${bmiStatus} category. It's important to maintain a healthy weight for long-term health. Would you like tips on diet or exercise?`;
+            }
+
+            if (lower.includes("schedule checkup")) {
+                return "You can book a checkup using the Calendar tab. Just click on a day to add a new appointment!";
+            }
+
+            if (lower.includes("lifestyle guidance")) {
+                return "To improve your daily habits, consider focusing on diet, exercise, and sleep. Which area would you like to know more about?";
+            }
+            
+            if (lower.includes("care guidelines")) {
+                return "I can provide evidence-based recommendations. What specific health topic are you interested in?";
+            }
+
+            if (lower.includes("diet") || lower.includes("food")) {
+                return "A balanced diet with vegetables, fruits, whole grains, and lean proteins is best for your health. Limit junk food and sugary drinks.";
+            }
+            if (lower.includes("exercise") || lower.includes("workout")) {
+                return "Aim for at least 30 minutes of moderate exercise, like walking, 5 times a week. Consistency is more important than intensity.";
+            }
+            if (lower.includes("water") || lower.includes("drink")) {
+                return "Drinking 2-3 liters of water daily keeps you hydrated and supports overall health.";
+            }
+            if (lower.includes("sleep") || lower.includes("rest")) {
+                return "Try to get 7-8 hours of quality sleep every night. Good sleep improves immunity and focus.";
+            }
+            if (lower.includes("stress") || lower.includes("mental")) {
+                return "Practice meditation, deep breathing, or short breaks to reduce stress. Mental health is as important as physical health.";
+            }
+            if (lower.includes("hello") || lower.includes("hi")) {
+                return "Hello! How are you feeling today? 😊";
+            }
+            
+            // Default fallback
+            return "I’m here to help with preventive care, diet, exercise, sleep, stress, and hydration tips. Try asking me something in those areas!";
+        }
+
+        const pages = {
+            home: `
+                <div class="p-6 md:p-8 space-y-8 flex flex-col h-full">
+                    <div class="flex items-center gap-2 text-slate-900">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-blue-600"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <div class="flex flex-col">
+                            <h1 class="text-xl md:text-2xl font-bold">Health Assistant</h1>
+                            <p class="text-sm md:text-base text-slate-500">Your personalized preventive care advisor</p>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4"></div>
+
+                    <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-600 mb-4 uppercase">Quick Actions</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <div id="quick-action-assessment" class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-2 text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <span class="text-sm font-semibold">Start Health Assessment</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Get personalized care recommendations</p>
+                            </div>
+                            <div id="quick-action-checkup" class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-2 text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                                    <span class="text-sm font-semibold">Schedule Checkup</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Book preventive care appointments</p>
+                            </div>
+                            <div id="quick-action-guidance" class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-2 text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    <span class="text-sm font-semibold">Lifestyle Guidance</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Improve your daily health habits</p>
+                            </div>
+                            <div id="quick-action-guidelines" class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-2 text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="10" y1="13" x2="14" y2="13"/><line x1="10" y1="17" x2="14" y2="17"/><line x1="10" y1="9" x2="10" y2="9"/></svg>
+                                    <span class="text-sm font-semibold">Care Guidelines</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Evidence-based health recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+                        <input id="chat-input" type="text" class="flex-1 px-4 py-2 bg-slate-50 rounded-lg border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message..." />
+                        <button id="send-button" class="w-10 h-10 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors disabled:bg-blue-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mx-auto"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `,
+            profile: `
+                <div class="p-6 md:p-8">
+                    <h2 class="text-2xl font-bold">My Profile</h2>
+                    <p class="text-slate-500 mt-1">This is where your health data and history will be displayed.</p>
+                    <div class="mt-8 p-6 bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-700 mb-4">Personal Information</h3>
+                        <form id="profile-form" class="space-y-4">
+                            <div>
+                                <label for="profile-age" class="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                                <input type="number" id="profile-age" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your age">
+                            </div>
+                            <div>
+                                <label for="profile-height" class="block text-sm font-medium text-slate-700 mb-1">Height (cm)</label>
+                                <input type="number" id="profile-height" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your height">
+                            </div>
+                            <div>
+                                <label for="profile-weight" class="block text-sm font-medium text-slate-700 mb-1">Weight (kg)</label>
+                                <input type="number" id="profile-weight" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your weight">
+                            </div>
+                            <button type="submit" id="save-profile-button" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors">Save Profile</button>
+                        </form>
+                    </div>
+                    <div id="profile-details" class="mt-8 p-6 bg-white rounded-xl shadow-sm border border-slate-200 hidden">
+                        <h3 class="text-lg font-semibold text-slate-700 mb-4">Saved Profile</h3>
+                        <ul class="space-y-2 text-slate-600">
+                            <li><span class="font-medium text-slate-800">Age:</span> <span id="display-age"></span></li>
+                            <li><span class="font-medium text-slate-800">Height:</span> <span id="display-height"></span> cm</li>
+                            <li><span class="font-medium text-slate-800">Weight:</span> <span id="display-weight"></span> kg</li>
+                        </ul>
+                    </div>
+                </div>
+            `,
+            careplan: `
+                <div class="p-6 md:p-8 space-y-6">
+                    <div class="flex justify-between items-center flex-wrap gap-4">
+                        <div class="flex-1">
+                            <h2 class="text-2xl font-bold">My Care Plan</h2>
+                            <p class="text-slate-500 mt-1">Personalized preventive health recommendations</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="export-pdf-button" class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl font-semibold hover:bg-blue-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                <span>Export PDF</span>
+                            </button>
+                            <button id="generate-new-plan-button" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+                                Generate New Plan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-600"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                                Recommended Vaccines
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Influenza Vaccine</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-yellow-100 text-yellow-700">medium priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2024-10-01</p>
+                                    <p class="text-xs text-slate-500 mt-2">Annual vaccination recommended, especially for those with chronic diseases.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Tdap (Tetanus, Diphtheria, Pertussis)</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-green-100 text-green-700">low priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2024-05-01</p>
+                                    <p class="text-xs text-slate-500 mt-2">Boost every 10 years; last received likely in 2014.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Shingles Vaccine (Shingrix)</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-yellow-100 text-yellow-700">medium priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2025-03-20</p>
+                                    <p class="text-xs text-slate-500 mt-2">Recommended for adults age 50 and older.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Pneumococcal Vaccine</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-green-100 text-green-700">low priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2025-03-20</p>
+                                    <p class="text-xs text-slate-500 mt-2">Advised for adults with chronic conditions; ensure current status.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="10" y1="13" x2="14" y2="13"/><line x1="10" y1="17" x2="14" y2="17"/><line x1="10" y1="9" x2="10" y2="9"/></svg>
+                                Recommended Screenings
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Blood pressure</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-red-100 text-red-700">high priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2024-03-20</p>
+                                    <p class="text-xs text-slate-500 mt-2">Frequency: annually. Continue monitoring due to hypertension.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Cholesterol (Lipid Panel)</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-red-100 text-red-700">high priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2024-12-31</p>
+                                    <p class="text-xs text-slate-500 mt-2">Frequency: every 5 years. Check due to family history of heart disease.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Diabetes (Fasting Glucose or HbA1c)</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-red-100 text-red-700">high priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2024-12-31</p>
+                                    <p class="text-xs text-slate-500 mt-2">Frequency: annually. Screening recommended due to family history and age.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h4 class="font-semibold text-slate-800">Colorectal Cancer Screening</h4>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full capitalize bg-yellow-100 text-yellow-700">medium priority</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">Due: 2026-03-20</p>
+                                    <p class="text-xs text-slate-500 mt-2">Frequency: every 10 years (or earlier based on findings). Recommended at age 45; start screenings.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            calendar: `
+                <div class="p-6 md:p-8">
+                    <h2 class="text-2xl font-bold">Calendar</h2>
+                    <p class="text-slate-500 mt-1">Manage your health appointments and reminders here.</p>
+                    <div class="mt-8 p-6 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col items-center">
+                        <div class="flex justify-between items-center w-full px-4 mb-4">
+                            <button id="prev-month" class="p-2 rounded-full hover:bg-slate-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                            </button>
+                            <h3 id="month-year" class="text-lg font-semibold text-slate-700"></h3>
+                            <button id="next-month" class="p-2 rounded-full hover:bg-slate-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center font-medium text-sm text-slate-500 w-full mb-2">
+                            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                        </div>
+                        <div id="calendar-days" class="grid grid-cols-7 gap-1 w-full text-center"></div>
+                        <div id="appointment-list" class="mt-6 w-full space-y-4"></div>
+                    </div>
+                </div>
+            `
+        };
+
+        // Rendering page and attaching events
+        const renderPage = (pageName) => {
+            const contentDiv = document.getElementById('content');
+            if (contentDiv) {
+                contentDiv.innerHTML = pages[pageName] || '';
+                attachEventListeners(pageName);
+            }
+        };
+
+        const attachEventListeners = (pageName) => {
+            if (pageName === 'home') {
+                document.getElementById('send-button').addEventListener('click', sendMessage);
+                document.getElementById('chat-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') sendMessage();
+                });
+                
+                // Attach listeners for all quick action buttons
+                document.getElementById('quick-action-assessment').addEventListener('click', () => {
+                    sendMessage('Start Health Assessment');
+                });
+                document.getElementById('quick-action-checkup').addEventListener('click', () => {
+                    sendMessage('Schedule Checkup');
+                });
+                document.getElementById('quick-action-guidance').addEventListener('click', () => {
+                    sendMessage('Lifestyle Guidance');
+                });
+                document.getElementById('quick-action-guidelines').addEventListener('click', () => {
+                    sendMessage('Care Guidelines');
+                });
+                
+                renderChat();
+            } else if (pageName === 'careplan') {
+                document.getElementById('export-pdf-button').addEventListener('click', handleGeneratePDF);
+                document.getElementById('generate-new-plan-button').addEventListener('click', handleGenerateNewPlan);
+            } else if (pageName === 'profile') {
+                document.getElementById('profile-form').addEventListener('submit', handleSaveProfile);
+                loadProfile();
+            } else if (pageName === 'calendar') {
+                renderCalendar();
+                document.getElementById('prev-month').addEventListener('click', () => {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                document.getElementById('next-month').addEventListener('click', () => {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    renderCalendar();
+                });
+            }
+        };
+
+        const updateNavButtons = (activePage) => {
+            document.querySelectorAll('.nav-button').forEach(button => {
+                const page = button.getAttribute('data-page');
+                if (page === activePage) {
+                    button.classList.add('bg-blue-50', 'text-blue-700', 'shadow-sm', 'border', 'border-blue-100');
+                    button.classList.remove('text-slate-700', 'hover:bg-slate-50', 'hover:shadow-sm');
+                } else {
+                    button.classList.remove('bg-blue-50', 'text-blue-700', 'shadow-sm', 'border', 'border-blue-100');
+                    button.classList.add('text-slate-700', 'hover:bg-slate-50', 'hover:shadow-sm');
+                }
+            });
+        };
+
+        // Rendering chat messages
+        function renderChat() {
+            const chatBox = document.getElementById("chat-messages");
+            if (!chatBox) return;
+            chatBox.innerHTML = "";
+
+            appState.chatHistory.forEach(msg => {
+                const bubble = document.createElement("div");
+                bubble.className = `flex ${msg.role === "user" ? "justify-end" : "justify-start"}`;
+                bubble.innerHTML = `
+                    <div class="p-4 rounded-lg shadow-sm max-w-lg ${
+                        msg.role === "user" ? "bg-blue-600 text-white rounded-br-none" : "bg-white text-slate-800 rounded-bl-none border border-slate-200"
+                    }">
+                        <p>${msg.text}</p>
+                    </div>
+                `;
+                chatBox.appendChild(bubble);
+            });
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Sending message
+        function sendMessage(messageText) {
+            const input = document.getElementById("chat-input");
+            const text = messageText || input.value.trim();
+            if (!text) return;
+
+            appState.chatHistory.push({ role: "user", text });
+            renderChat();
+
+            input.value = "";
+
+            // Simulate AI response
+            setTimeout(() => {
+                const reply = getAIResponse(text);
+                appState.chatHistory.push({ role: "assistant", text: reply });
+                renderChat();
+            }, 600);
+        }
+
+        const handleGeneratePDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const title = "My Care Plan";
+            const subtitle = "Personalized preventive health recommendations";
+            const margin = 20;
+            let y = margin;
+            const lineHeight = 7;
+            
+            doc.setFontSize(22);
+            doc.text(title, margin, y);
+            y += lineHeight;
+            doc.setFontSize(12);
+            doc.text(subtitle, margin, y);
+            y += lineHeight * 2;
+            
+            const addSection = (sectionTitle, items) => {
+                doc.setFontSize(16);
+                doc.text(sectionTitle, margin, y);
+                y += lineHeight;
+                doc.setFontSize(12);
+                
+                items.forEach(item => {
+                    doc.text(`- ${item.name}`, margin + 5, y);
+                    y += lineHeight;
+                    if (item.details) {
+                        doc.text(item.details, margin + 10, y);
+                        y += lineHeight;
+                    }
+                    if (y > 280) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                });
+                y += lineHeight;
+            };
+
+            const vaccines = [
+                { name: "Influenza Vaccine", details: "Due: 2024-10-01\nAnnual vaccination recommended, especially for those with chronic diseases." },
+                { name: "Tdap (Tetanus, Diphtheria, Pertussis)", details: "Due: 2024-05-01\nBoost every 10 years; last received likely in 2014." },
+                { name: "Shingles Vaccine (Shingrix)", details: "Due: 2025-03-20\nRecommended for adults age 50 and older." },
+                { name: "Pneumococcal Vaccine", details: "Due: 2025-03-20\nAdvised for adults with chronic conditions; ensure current status." },
+            ];
+            const screenings = [
+                { name: "Blood pressure", details: "Due: 2024-03-20\nFrequency: annually\nContinue monitoring due to hypertension." },
+                { name: "Cholesterol (Lipid Panel)", details: "Due: 2024-12-31\nFrequency: every 5 years\nCheck due to family history of heart disease." },
+                { name: "Diabetes (Fasting Glucose or HbA1c)", details: "Due: 2024-12-31\nFrequency: annually\nScreening recommended due to family history and age." },
+                { name: "Colorectal Cancer Screening", details: "Due: 2026-03-20\nFrequency: every 10 years (or earlier based on findings).\nRecommended at age 45; start screenings." },
+            ];
+            
+            addSection("Recommended Vaccines", vaccines);
+            addSection("Recommended Screenings", screenings);
+            
+            doc.save("CarePlan.pdf");
+        };
+
+        const handleGenerateNewPlan = () => {
+            const planText = "Generating a new, personalized care plan for you. This might take a moment...";
+            const contentDiv = document.getElementById('content');
+            if (contentDiv) {
+                const messageBox = document.createElement('div');
+                messageBox.className = 'absolute bottom-8 right-8 p-4 bg-green-500 text-white rounded-lg shadow-lg animate-fade-in';
+                messageBox.textContent = planText;
+                contentDiv.appendChild(messageBox);
+                setTimeout(() => {
+                    messageBox.remove();
+                }, 3000); // Remove message after 3 seconds
+            }
+        };
+
+        const handleSaveProfile = (e) => {
+            e.preventDefault();
+            const age = document.getElementById('profile-age').value;
+            const height = document.getElementById('profile-height').value;
+            const weight = document.getElementById('profile-weight').value;
+            appState.profile = { age, height, weight };
+            localStorage.setItem('healthProfile', JSON.stringify(appState.profile));
+            renderProfile();
+        };
+
+        const loadProfile = () => {
+            const savedProfile = localStorage.getItem('healthProfile');
+            if (savedProfile) {
+                appState.profile = JSON.parse(savedProfile);
+            }
+            renderProfile();
+        };
+
+        const renderProfile = () => {
+            const profileDetails = document.getElementById('profile-details');
+            if (appState.profile.age || appState.profile.height || appState.profile.weight) {
+                profileDetails.classList.remove('hidden');
+                document.getElementById('display-age').textContent = appState.profile.age || 'N/A';
+                document.getElementById('display-height').textContent = appState.profile.height || 'N/A';
+                document.getElementById('display-weight').textContent = appState.profile.weight || 'N/A';
+                document.getElementById('profile-age').value = appState.profile.age || '';
+                document.getElementById('profile-height').value = appState.profile.height || '';
+                document.getElementById('profile-weight').value = appState.profile.weight || '';
+            } else {
+                profileDetails.classList.add('hidden');
+            }
+        };
+
+        let currentDate = new Date();
+        const renderCalendar = () => {
+            const monthYearEl = document.getElementById('month-year');
+            const daysEl = document.getElementById('calendar-days');
+            const appointmentListEl = document.getElementById('appointment-list');
+
+            if (!monthYearEl || !daysEl || !appointmentListEl) return;
+            
+            monthYearEl.textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+            daysEl.innerHTML = '';
+            appointmentListEl.innerHTML = '';
+
+            const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            const today = new Date();
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                daysEl.innerHTML += `<span></span>`;
+            }
+
+            const appointmentsForMonth = appState.appointments.filter(appt => {
+                const apptDate = new Date(appt.date);
+                return apptDate.getFullYear() === currentDate.getFullYear() && apptDate.getMonth() === currentDate.getMonth();
+            });
+
+            appointmentsForMonth.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            appointmentsForMonth.forEach(appt => {
+                const apptDate = new Date(appt.date);
+                const li = document.createElement('div');
+                li.className = 'p-4 bg-white rounded-lg shadow-sm border border-slate-200';
+                li.innerHTML = `
+                    <h4 class="font-semibold text-slate-800">${appt.title}</h4>
+                    <p class="text-sm text-slate-600">Date: ${apptDate.toLocaleDateString()}</p>
+                    <p class="text-xs text-slate-500 mt-2">${appt.notes}</p>
+                `;
+                appointmentListEl.appendChild(li);
+            });
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.textContent = day;
+                dayEl.className = 'p-2 text-center rounded-lg cursor-pointer transition-colors hover:bg-blue-100';
+                
+                const currentDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const hasAppointment = appointmentsForMonth.some(appt => new Date(appt.date).getDate() === day);
+
+                if (currentDay.getDate() === today.getDate() && currentDay.getMonth() === today.getMonth() && currentDay.getFullYear() === today.getFullYear()) {
+                    dayEl.classList.add('bg-blue-600', 'text-white', 'font-bold');
+                } else if (hasAppointment) {
+                    dayEl.classList.add('bg-blue-200', 'text-blue-800', 'font-semibold');
+                } else {
+                    dayEl.classList.add('text-slate-700');
+                }
+
+                dayEl.addEventListener('click', () => handleAddAppointment(day));
+                daysEl.appendChild(dayEl);
+            }
+        };
+
+        const handleAddAppointment = (day) => {
+            const title = prompt("Enter appointment title:");
+            if (title) {
+                const notes = prompt("Enter notes for this appointment:");
+                const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                appState.appointments.push({
+                    title,
+                    date: newDate.toISOString().split('T')[0],
+                    notes
+                });
+                localStorage.setItem('healthAppointments', JSON.stringify(appState.appointments));
+                renderCalendar();
+            }
+        };
+
+        const init = () => {
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const page = e.currentTarget.getAttribute('data-page');
+                    renderPage(page);
+                    updateNavButtons(page);
+                });
+            });
+
+            document.getElementById('mobile-menu-button').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                sidebar.classList.toggle('sidebar-open');
+                overlay.classList.toggle('hidden');
+            });
+
+            document.getElementById('sidebar-overlay').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                sidebar.classList.remove('sidebar-open');
+                overlay.classList.add('hidden');
+            });
+
+            const savedAppointments = localStorage.getItem('healthAppointments');
+            if (savedAppointments) {
+                appState.appointments = JSON.parse(savedAppointments);
+            }
+            
+            renderPage(appState.currentPage);
+            updateNavButtons(appState.currentPage);
+        };
+
+        window.onload = init;
+    </script>
+</body>
+</html>
